@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Round Zero – A Tactical Shooter Fan Hub</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Barlow:wght@400;500;600&display=swap">
+<style>
+:root{--bg:#0f1923;--bg2:#17232f;--ink:#ece8e1;--mute:#8d9aa6;--red:#ff4655;--line:#2a3a48;--ok:#4ade80;
+ box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#f2efe9;--bg2:#e6e1d8;--ink:#0f1923;--mute:#55616c;--line:#c9c2b5;--red:#d62839}}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth;scroll-padding-top:70px}
+body{background:var(--bg);color:var(--ink);font:500 16px/1.6 Barlow,system-ui,sans-serif;overflow-x:hidden}
+h1,h2,h3{font-family:"Big Shoulders Display",Impact,sans-serif;line-height:.95;letter-spacing:.01em}
+h2{font-size:clamp(2.2rem,6vw,3.6rem);margin-bottom:.4em}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--red);outline-offset:3px}
+nav{position:sticky;top:0;z-index:20;display:flex;gap:1.4rem;align-items:center;padding:.8rem 5vw;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+nav b{font:900 1.4rem "Big Shoulders Display",Impact,sans-serif;margin-right:auto}
+nav b i{color:var(--red);font-style:normal}
+nav a{text-decoration:none;color:var(--mute);font-size:.95rem}nav a:hover{color:var(--ink)}
+@media(max-width:640px){nav a:nth-child(n+4){display:none}}
+section{padding:clamp(3.5rem,9vw,7rem) 5vw;max-width:1200px;margin:auto}
+.lead{color:var(--mute);max-width:58ch;margin-bottom:2rem}
+
+/* hero */
+.hero{min-height:88vh;display:grid;grid-template-columns:1.1fr .9fr;gap:3rem;align-items:center;max-width:1200px;margin:auto;padding:4rem 5vw;position:relative}
+.hero::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(135deg,transparent 0 38px,color-mix(in srgb,var(--red) 7%,transparent) 38px 40px);z-index:-1;mask:linear-gradient(90deg,transparent,#000 70%)}
+.hero h1{font-size:clamp(4rem,13vw,9.5rem);font-weight:900;text-transform:uppercase}
+.hero h1 span{display:block;color:transparent;-webkit-text-stroke:2px var(--red)}
+.hero p{color:var(--mute);max-width:44ch;margin:1.2rem 0 1.8rem}
+.btn{display:inline-block;background:var(--red);color:#fff;border:0;padding:.85rem 1.8rem;font:700 1.05rem "Big Shoulders Display",Impact,sans-serif;letter-spacing:.06em;clip-path:polygon(0 0,100% 0,100% 70%,92% 100%,0 100%);cursor:pointer;text-decoration:none}
+.btn:hover{filter:brightness(1.12)}
+.spike{background:var(--bg2);border:1px solid var(--line);padding:1.6rem;text-align:center;position:relative;user-select:none;-webkit-user-select:none}
+.spike::after{content:"";position:absolute;left:-1px;top:-1px;width:28px;height:28px;border-left:3px solid var(--red);border-top:3px solid var(--red)}
+.ring{width:min(260px,70vw);aspect-ratio:1;margin:0 auto;position:relative}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:8}
+#tick{stroke:var(--red);transition:stroke .2s}
+#defuse{stroke:var(--ok)}
+.ring .t{position:absolute;inset:0;display:grid;place-content:center;font:900 4.4rem "Big Shoulders Display",Impact,sans-serif}
+.ring .t small{display:block;font:500 .85rem Barlow,sans-serif;color:var(--mute);text-align:center}
+#hold{margin-top:1.2rem;width:100%;background:transparent;border:2px solid var(--ink);color:var(--ink);padding:.8rem;font:700 1.1rem "Big Shoulders Display",Impact,sans-serif;letter-spacing:.06em;cursor:pointer;touch-action:none}
+#hold:active{background:var(--ok);border-color:var(--ok);color:#0f1923}
+#msg{min-height:1.6em;margin-top:.7rem;color:var(--mute);font-size:.95rem}
+.boom #tick{stroke:#ffb020}
+
+/* round loop */
+.loop{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line)}
+.loop div{padding:1.4rem;border-right:1px solid var(--line);background:var(--bg2)}
+.loop div:last-child{border:0}
+.loop h3{font-size:1.9rem;color:var(--red);margin-bottom:.4rem}
+.loop p{color:var(--mute);font-size:.95rem}
+.loop em{font:700 .9rem Barlow,sans-serif;font-style:normal;display:block;margin-top:.8rem}
+@media(max-width:800px){.hero{grid-template-columns:1fr}.loop{grid-template-columns:1fr 1fr}.loop div{border-bottom:1px solid var(--line)}}
+
+/* arsenal */
+.tabs{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.5rem}
+.tabs button{background:none;border:1px solid var(--line);color:var(--mute);padding:.4rem 1rem;font:600 .95rem Barlow,sans-serif;cursor:pointer}
+.tabs button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.guns{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1rem}
+.gun{background:var(--bg2);border:1px solid var(--line);padding:1.2rem;border-left:4px solid var(--red)}
+.gun h3{font-size:1.8rem;display:flex;justify-content:space-between;align-items:baseline}
+.gun h3 span{font:600 1rem Barlow,sans-serif;color:var(--mute)}
+.gun small{color:var(--mute)}
+.bar{display:grid;grid-template-columns:70px 1fr;align-items:center;gap:.6rem;margin-top:.55rem;font-size:.85rem;color:var(--mute)}
+.bar i{display:block;height:6px;background:var(--line)}
+.bar i b{display:block;height:100%;background:var(--red)}
+
+/* economy + crosshair */
+.lab{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+@media(max-width:800px){.lab{grid-template-columns:1fr}}
+.panel{background:var(--bg2);border:1px solid var(--line);padding:1.6rem}
+.panel h3{font-size:2rem;margin-bottom:1rem}
+label{display:block;margin-top:.9rem;font-size:.9rem;color:var(--mute)}
+label output{float:right;color:var(--ink)}
+input[type=range]{width:100%;accent-color:var(--red)}
+select,input[type=number],input[type=color]{width:100%;background:var(--bg);color:var(--ink);border:1px solid var(--line);padding:.5rem;font:inherit}
+input[type=color]{padding:2px;height:38px}
+.chk{display:flex;gap:.6rem;align-items:center;color:var(--ink)}
+.chk input{accent-color:var(--red);width:18px;height:18px}
+.big{font:900 3.4rem "Big Shoulders Display",Impact,sans-serif;color:var(--red);margin-top:1rem}
+.big small{font:500 .9rem Barlow,sans-serif;color:var(--mute);margin-left:.5rem}
+.buy{margin-top:.5rem;color:var(--mute);font-size:.95rem}
+.stage{height:230px;background:linear-gradient(135deg,#3b5368,#1f3140 55%,#2f4a5d);position:relative;display:grid;place-items:center;overflow:hidden;margin-bottom:.5rem}
+.stage::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.05) 0 1px,transparent 1px 40px),repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 1px,transparent 1px 40px)}
+#xh{position:relative;width:0;height:0}
+#xh *{position:absolute;background:var(--c,#0f0)}
+
+/* ranks */
+.ranks{display:flex;align-items:flex-end;gap:6px;height:260px;margin-top:1rem}
+.ranks button{flex:1;border:0;background:var(--line);color:var(--ink);font:700 .9rem Barlow,sans-serif;cursor:pointer;display:flex;align-items:flex-end;justify-content:center;padding-bottom:.6rem;transition:background .2s}
+.ranks button:hover,.ranks button[aria-pressed=true]{background:var(--red);color:#fff}
+#rinfo{margin-top:1rem;padding:1.2rem;background:var(--bg2);border-left:4px solid var(--red);max-width:70ch}
+@media(max-width:640px){.ranks button{font-size:0}.ranks button::after{content:attr(data-s);font-size:.8rem}}
+footer{padding:2.5rem 5vw;color:var(--mute);border-top:1px solid var(--line);font-size:.85rem;text-align:center}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+.btn,.ranks button:hover,.ranks button[aria-pressed=true]{color:#0f1923}
+.sw{display:flex;gap:.5rem;margin-left:.4rem}
+.sw button{width:18px;height:18px;border-radius:50%;border:0;background:var(--c);cursor:pointer;padding:0}
+.sw button[aria-pressed=true]{box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--c)}
+#embers{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
+.glitch{animation:gl .9s steps(1,end) 1}
+@keyframes gl{0%{transform:translate(0)}10%{transform:translate(-8px,2px);text-shadow:7px 0 var(--red),-7px 0 #3de0ff;clip-path:inset(10% 0 55% 0)}20%{transform:translate(6px,-2px);text-shadow:-6px 0 var(--red),6px 0 #3de0ff;clip-path:inset(60% 0 8% 0)}30%{transform:translate(-3px,0);clip-path:inset(0)}45%{transform:translate(3px,1px);text-shadow:4px 0 var(--red)}60%,100%{transform:none;text-shadow:none;clip-path:inset(0)}}
+.urgent #tick{animation:blink .5s steps(1) infinite}
+.urgent .t{color:var(--red)}
+@keyframes blink{50%{stroke:#fff}}
+.fx{display:grid;grid-template-columns:1fr 2fr;gap:1.5rem}
+@media(max-width:800px){.fx{grid-template-columns:1fr}}
+.fxlist{display:grid;gap:.6rem;align-content:start}
+.fxlist button{text-align:left;background:var(--bg2);border:1px solid var(--line);border-left:4px solid var(--c);color:var(--ink);padding:.8rem 1rem;font:600 1.05rem Barlow,sans-serif;cursor:pointer;transition:transform .15s,background .15s}
+.fxlist button:hover{transform:translateX(6px);background:color-mix(in srgb,var(--c) 14%,var(--bg2))}
+.fxlist small{display:block;color:var(--mute);font-weight:400;font-size:.88rem}
+.fxstage{height:380px;position:relative;overflow:hidden;background:#0a121a;border:1px solid var(--line)}
+.fxstage::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.05) 0 1px,transparent 1px 44px),repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 1px,transparent 1px 44px)}
+.fxhint{position:absolute;inset:0;display:grid;place-content:center;color:#8d9aa6;font-size:.95rem;pointer-events:none}
+.fxstage div.e{position:absolute;pointer-events:none}
+.smoke{width:50px;height:50px;margin:-25px;border-radius:50%;background:radial-gradient(circle,var(--c),transparent 68%);filter:blur(7px);animation:smoke 2.8s ease-out forwards}
+@keyframes smoke{from{transform:scale(.3);opacity:.95}70%{opacity:.6}to{transform:scale(8);opacity:0}}
+.flash{inset:0;background:radial-gradient(circle at 50% 50%,#fff,var(--c) 40%,transparent 75%);animation:flash 1s ease-out forwards}
+@keyframes flash{0%{opacity:0}8%{opacity:1}100%{opacity:0}}
+.dash{height:5px;width:45%;left:-50%;background:linear-gradient(90deg,transparent,var(--c));box-shadow:0 0 14px var(--c);animation:dash .7s cubic-bezier(.2,.7,.2,1) forwards}
+@keyframes dash{to{left:115%}}
+.wall{bottom:0;width:7%;height:0;background:linear-gradient(0deg,var(--c),color-mix(in srgb,var(--c) 30%,transparent));box-shadow:0 0 18px var(--c);animation:wall .5s cubic-bezier(.2,.9,.3,1) forwards,gone .6s 2.2s forwards}
+@keyframes wall{to{height:75%}}
+@keyframes gone{to{opacity:0}}
+.pulse{width:40px;height:40px;margin:-20px;border-radius:50%;border:3px solid var(--c);box-shadow:0 0 16px var(--c);animation:pulse 1.8s ease-out forwards}
+@keyframes pulse{from{transform:scale(0);opacity:1}to{transform:scale(11);opacity:0}}
+.scene{perspective:1000px;height:460px;display:grid;place-items:center;cursor:grab;touch-action:pan-y;position:relative;background:radial-gradient(circle at 50% 62%,color-mix(in srgb,var(--red) 14%,transparent),transparent 65%);user-select:none;-webkit-user-select:none}
+.scene:active{cursor:grabbing}
+.tilt,.spin{position:relative;width:0;height:0;transform-style:preserve-3d}
+.prism{position:absolute;left:-45px;top:-130px;width:90px;height:260px;transform-style:preserve-3d}
+.face{position:absolute;inset:0;opacity:.84;border:1px solid var(--red);background:linear-gradient(180deg,color-mix(in srgb,var(--red) 65%,#000),#0a121a 55%,color-mix(in srgb,var(--red) 35%,#000));box-shadow:inset 0 0 24px color-mix(in srgb,var(--red) 55%,transparent)}
+.face::after{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:#fff;box-shadow:0 0 12px var(--red),0 0 24px var(--red);animation:scan 2.4s ease-in-out infinite alternate}
+@keyframes scan{to{top:calc(100% - 3px)}}
+.floor{position:absolute;left:-320px;top:-320px;width:640px;height:640px;transform:translateY(150px) rotateX(90deg);background:repeating-linear-gradient(0deg,color-mix(in srgb,var(--red) 45%,transparent) 0 1px,transparent 1px 40px),repeating-linear-gradient(90deg,color-mix(in srgb,var(--red) 45%,transparent) 0 1px,transparent 1px 40px);-webkit-mask:radial-gradient(circle,#000 15%,transparent 68%);mask:radial-gradient(circle,#000 15%,transparent 68%)}
+.core{position:absolute;transform-style:preserve-3d;animation:cp 1.4s ease-in-out infinite alternate}
+.core i{position:absolute;left:-45px;top:-45px;width:90px;height:90px;border-radius:50%;background:radial-gradient(circle,#fff 0,var(--red) 32%,transparent 70%)}
+.core i:nth-child(2){transform:rotateY(60deg)}.core i:nth-child(3){transform:rotateY(120deg)}
+@keyframes cp{from{transform:scale(.75)}to{transform:scale(1.3)}}
+.rg{position:absolute;border:2px solid var(--red);border-radius:50%;box-shadow:0 0 16px var(--red),inset 0 0 16px var(--red)}
+.r1{width:230px;height:230px;left:-115px;top:-115px;animation:ra 7s linear infinite}
+.r2{width:340px;height:340px;left:-170px;top:-170px;animation:rb 11s linear infinite}
+@keyframes ra{from{transform:rotateX(72deg) rotateZ(0)}to{transform:rotateX(72deg) rotateZ(360deg)}}
+@keyframes rb{from{transform:rotateY(72deg) rotateZ(0)}to{transform:rotateY(72deg) rotateZ(-360deg)}}
+.shard{position:absolute;width:10px;height:10px;background:var(--red);box-shadow:0 0 10px var(--red);animation:bob 3s ease-in-out infinite alternate}
+@keyframes bob{to{margin-top:-18px}}
+.ctl{display:flex;gap:1rem;align-items:center;flex-wrap:wrap;margin-top:1rem}
+.ctl label{margin:0;display:flex;gap:.6rem;align-items:center}
+.ctl input{width:140px}
+.gun,.loop div,.spike{transition:transform .25s ease-out,box-shadow .25s;will-change:transform}
+.tl{box-shadow:0 18px 40px rgba(0,0,0,.35),0 0 0 1px var(--red);position:relative;z-index:2}
+/* toxin background */
+.bg{position:fixed;inset:0;z-index:-2;overflow:hidden;pointer-events:none;--mx:50%;--my:30%}
+.bg .sc,.scales{position:absolute;inset:0;background:var(--red);opacity:.09;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Cpath d='M0 40A20 20 0 0 1 40 40M-20 20A20 20 0 0 1 20 20M20 20A20 20 0 0 1 60 20' fill='none' stroke='black' stroke-width='1.3'/%3E%3C/svg%3E") 0 0/40px 40px;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Cpath d='M0 40A20 20 0 0 1 40 40M-20 20A20 20 0 0 1 20 20M20 20A20 20 0 0 1 60 20' fill='none' stroke='black' stroke-width='1.3'/%3E%3C/svg%3E") 0 0/40px 40px;animation:crawl 30s linear infinite}
+@keyframes crawl{to{-webkit-mask-position:40px 80px;mask-position:40px 80px}}
+.bg .gb{position:absolute;width:62vmax;height:62vmax;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--red) 26%,transparent),transparent 65%);filter:blur(40px);animation:drift2 26s ease-in-out infinite alternate}
+.bg .gb:nth-child(2){left:-18vmax;top:-12vmax}
+.bg .gb:nth-child(3){right:-22vmax;top:30vh;animation-delay:-9s;animation-duration:32s}
+.bg .gb:nth-child(4){left:20vw;bottom:-30vmax;animation-delay:-16s}
+@keyframes drift2{to{transform:translate(12vmax,-8vmax) scale(1.2)}}
+.bg::after{content:"";position:absolute;inset:0;background:radial-gradient(circle 300px at var(--mx) var(--my),color-mix(in srgb,var(--red) 17%,transparent),transparent),radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,.6))}
+#spores{position:absolute;inset:0;width:100%;height:100%}
+/* loading screen */
+#load{position:fixed;inset:0;z-index:100;background:#050b07;display:grid;place-content:center;justify-items:center;gap:.6rem;overflow:hidden;color:#d9ffcf;--t:#7dff3a;transition:opacity 1s ease .25s}
+#load .scales{background:var(--t);opacity:.07}
+.lg{position:absolute;width:72vmax;height:72vmax;border-radius:50%;background:radial-gradient(circle,rgba(125,255,58,.36),transparent 65%);filter:blur(30px);animation:drift2 9s ease-in-out infinite alternate;transition:transform 1.2s ease-in,opacity 1s}
+.lg:nth-of-type(1){left:-22vmax;top:-22vmax}
+.lg:nth-of-type(2){right:-26vmax;bottom:-26vmax;animation-delay:-4s}
+.hxw{position:relative;filter:drop-shadow(0 0 20px rgba(125,255,58,.55));margin-bottom:.8rem;transition:transform .7s ease-in,opacity .7s}
+.hx{position:relative;width:170px;height:196px;background:var(--t);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)}
+.hx .in{position:absolute;inset:4px;background:#07110a;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);overflow:hidden}
+.liq{position:absolute;left:0;right:0;bottom:0;height:calc(var(--p,0)*1%);background:linear-gradient(180deg,#9dff5a,#2f9d1c)}
+.liq::before{content:"";position:absolute;left:0;right:0;top:-10px;height:12px;background:radial-gradient(circle at 10px 12px,#9dff5a 9px,transparent 10px) repeat-x;background-size:20px 12px;animation:wv 1.2s linear infinite}
+@keyframes wv{to{background-position-x:20px}}
+.liq s{position:absolute;bottom:0;width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.55);animation:rise 2.2s linear infinite}
+.liq s:nth-child(1){left:15%}.liq s:nth-child(2){left:35%;animation-delay:-.7s;width:5px;height:5px}.liq s:nth-child(3){left:55%;animation-delay:-1.4s}.liq s:nth-child(4){left:72%;animation-delay:-.3s;width:6px;height:6px}.liq s:nth-child(5){left:86%;animation-delay:-1.1s}
+@keyframes rise{from{bottom:0;opacity:.8}to{bottom:95%;opacity:0}}
+#lp{position:relative;font:900 4.2rem/1 "Big Shoulders Display",Impact,sans-serif;color:var(--t);text-shadow:0 0 22px rgba(125,255,58,.6);font-variant-numeric:tabular-nums}
+#lt{position:relative;color:#8fb89a;font-size:1rem}
+#load.out{opacity:0;pointer-events:none}
+#load.out .lg{animation:none;transform:scale(2.6);opacity:0}
+#load.out .hxw{transform:scale(1.7);opacity:0}
+#viper{position:absolute;inset:0;width:100%;height:100%;opacity:.6}
+#load{background:transparent;transition:none}
+#load.out{opacity:1}
+.sh{position:absolute;left:0;right:0;height:50.3%;background:#050b12 repeating-linear-gradient(0deg,rgba(61,224,255,.05) 0 1px,transparent 1px 44px);transition:transform .9s cubic-bezier(.7,0,.2,1) .35s}
+.sh1{top:0}.sh2{bottom:0}
+.sh::after{content:'';position:absolute;left:0;right:0;height:2px;background:#3de0ff;box-shadow:0 0 14px #3de0ff}
+.sh1::after{bottom:0}.sh2::after{top:0}
+#load.out .sh1{transform:translateY(-101%)}#load.out .sh2{transform:translateY(101%)}
+.rd,#load #lp,#load #lt{position:relative;z-index:2;transition:opacity .35s}
+#load.out .rd,#load.out #lp,#load.out #lt{opacity:0}
+#load #lp{color:#e8f9ff;text-shadow:0 0 22px rgba(61,224,255,.7)}
+#load #lt{color:#7fa8b8}
+.rd{width:260px;height:260px;margin-bottom:1rem}
+.rd::before{content:'';position:absolute;inset:14px;border-radius:50%;background-color:rgba(61,224,255,.04);background-image:repeating-radial-gradient(circle,transparent 0 27px,rgba(61,224,255,.28) 28px 29px),linear-gradient(90deg,transparent calc(50% - .5px),rgba(61,224,255,.28) 0 calc(50% + .5px),transparent 0),linear-gradient(0deg,transparent calc(50% - .5px),rgba(61,224,255,.28) 0 calc(50% + .5px),transparent 0)}
+.rr{position:absolute;inset:0;border-radius:50%;background:conic-gradient(#3de0ff calc(var(--p,0)*1%),rgba(61,224,255,.14) 0);-webkit-mask:radial-gradient(circle,transparent 66%,#000 67%);mask:radial-gradient(circle,transparent 66%,#000 67%)}
+.rd .sw{position:absolute;inset:14px;border-radius:50%;background:conic-gradient(from 0deg,rgba(61,224,255,0) 0 280deg,rgba(61,224,255,.6) 360deg);animation:spin 2s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.bl{position:absolute;width:9px;height:9px;margin:-4px;border-radius:50%;background:#ff4655;box-shadow:0 0 12px #ff4655;opacity:0;animation:blip 2s linear infinite}
+@keyframes blip{0%{opacity:1;transform:scale(1.7)}60%{opacity:.5;transform:scale(1)}100%{opacity:0}}
+.opbar{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin-bottom:1.2rem}
+.opbar input,.opbar select{width:auto;background:var(--bg2);color:var(--ink);border:1px solid var(--line);padding:.5rem .8rem;font:inherit}
+.rolesum{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;margin-bottom:1.4rem}
+@media(max-width:800px){.rolesum{grid-template-columns:1fr 1fr}}
+.rs{background:var(--bg2);border:1px solid var(--line);border-top:4px solid var(--rc);padding:1rem}
+.rs h3{font-size:1.8rem;color:var(--rc)}.rs small{color:var(--mute)}
+.ops{display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:1rem}
+.op{background:var(--bg2);border:1px solid var(--line);position:relative;cursor:pointer;padding:1rem}
+.op::before{content:'';position:absolute;left:0;right:0;top:0;height:3px;background:var(--rc)}
+.op:hover{border-color:var(--rc)}
+.hexb{flex:none;width:54px;height:62px;display:grid;place-items:center;background:var(--rc);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);font:900 1.7rem 'Big Shoulders Display',Impact,sans-serif;color:#0f1923}
+.op h3{font-size:1.7rem}.meta{color:var(--mute);font-size:.85rem}
+.dots i{display:inline-block;width:8px;height:8px;margin-right:4px;background:var(--ink);border-radius:50%}
+.ab{display:none;margin:.7rem 0 0;padding-left:1.1rem;font-size:.88rem;color:var(--mute)}
+.op[aria-expanded=true] .ab{display:block}
+@media(prefers-reduced-motion:reduce){.glitch,.urgent #tick{animation:none}.rg,.core,.face::after,.shard{animation:none}.bg .sc,.bg .gb,#load .lg,.liq::before,.liq s,#load .scales,.rd .sw,.bl{animation:none}}
+</style>
+</head>
+<body>
+<div id="load" role="status" aria-live="polite"><div class="sh sh1"></div><div class="sh sh2"></div>
+  <div class="rd"><div class="rr"></div><div class="sw"></div><b class="bl" style="left:62%;top:30%;animation-delay:.17s"></b><b class="bl" style="left:30%;top:62%;animation-delay:1.33s"></b><b class="bl" style="left:70%;top:68%;animation-delay:.73s"></b><b class="bl" style="left:40%;top:36%;animation-delay:1.8s"></b><b class="bl" style="left:56%;top:80%;animation-delay:.94s"></b></div>
+  <div id="lp">0%</div><div id="lt">Sealing the area</div></div>
+<div class="bg" id="bg" aria-hidden="true"><div class="sc"></div><div class="gb"></div><div class="gb"></div><div class="gb"></div><canvas id="viper"></canvas><canvas id="spores"></canvas></div>
+<nav><b>ROUND<i>/</i>ZERO</b><a href="#loop">The round</a><a href="#ops">Operators</a><a href="#fx">Ability FX</a><a href="#spike3d">3D Spike</a><a href="#arsenal">Arsenal</a><a href="#econ">Economy</a><a href="#xhair">Crosshair lab</a><a href="#ranks">Ranks</a><div class="sw" id="sw" role="group" aria-label="Colour theme"></div></nav>
+
+<header class="hero"><canvas id="embers" aria-hidden="true"></canvas>
+  <div>
+    <h1 class="glitch">Plant.<span>Defuse.</span>Repeat.</h1>
+    <p>A fan-made field guide to the 5v5 tactical shooter: how a round flows, what to buy, how to aim. Skip the lore. Learn the loop.</p>
+    <a class="btn" href="#loop">Start the round</a>
+  </div>
+  <div class="spike" id="spike">
+    <div class="ring">
+      <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" stroke="var(--line)"/><circle id="tick" cx="50" cy="50" r="44" pathLength="100" stroke-dasharray="100" stroke-dashoffset="0"/><circle id="defuse" cx="50" cy="50" r="36" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/></svg>
+      <div class="t"><div><span id="clock">45</span><small id="state">spike planted</small></div></div>
+    </div>
+    <button id="hold" aria-label="Hold to defuse the spike">Hold to defuse</button>
+    <div id="msg">Hold for 7 seconds before the 45 run out.</div>
+  </div>
+</header>
+
+<section id="loop">
+  <h2>Anatomy of a round</h2>
+  <p class="lead">Every match is a race to 13 rounds. Each round repeats the same four beats, and the best teams win by managing the first one.</p>
+  <div class="loop">
+    <div><h3>Buy phase</h3><p>Spend credits on a weapon, armor and abilities before the gates open.</p><em>30 seconds</em></div>
+    <div><h3>Take space</h3><p>Attackers push toward a site while defenders hold angles and rotate on info.</p><em>Up to 100 seconds</em></div>
+    <div><h3>Plant</h3><p>Attackers drop the spike on a site. Now defenders are on the clock.</p><em>Spike burns for 45 seconds</em></div>
+    <div><h3>Resolve</h3><p>Defuse, detonate, or eliminate the other team. Credits roll into the next buy.</p><em>Win 13 to take the map</em></div>
+  </div>
+</section>
+
+<section id="fx">
+  <h2>Ability effects</h2>
+  <p class="lead">Every effect has its own colour. Tap one to fire it in the arena and repaint the whole site in its colour.</p>
+  <div class="fx">
+    <div class="fxlist" id="fxl"></div>
+    <div class="fxstage" id="fxs"><div class="fxhint">Tap anywhere in the arena to fire the selected effect</div></div>
+  </div>
+</section>
+
+<section id="spike3d">
+  <h2>Inspect the spike</h2>
+  <p class="lead">A fully 3D model built from CSS. Drag to spin it and tilt it, or let it turn on its own. It takes on whichever colour theme you pick.</p>
+  <div class="scene" id="scene" role="img" aria-label="Interactive 3D spike model">
+    <div class="tilt" id="tilt">
+      <div class="floor"></div>
+      <div class="spin" id="spin">
+        <div class="prism" id="prism"></div>
+        <div class="core"><i></i><i></i><i></i></div>
+        <div class="rg r1"></div><div class="rg r2"></div>
+      </div>
+    </div>
+  </div>
+  <div class="ctl">
+    <button class="btn" id="spinBtn">Pause spin</button>
+    <label for="spd">Speed <input type="range" id="spd" min="0" max="3" step=".1" value=".5"></label>
+  </div>
+</section>
+
+<section id="arsenal">
+  <h2>Arsenal</h2>
+  <p class="lead">Prices are the in-game credit costs. Bars are rough relative ratings for comparing weapons at a glance, not exact stats.</p>
+  <div class="tabs" id="tabs" role="group" aria-label="Weapon class"></div>
+  <div class="guns" id="guns"></div>
+</section>
+
+<section id="ops">
+  <h2>Operators</h2>
+  <p class="lead">All 29 playable operators. Tap a card to see its four abilities. Role, difficulty and origin come from public guides. The four ratings are my own 1 to 5 estimates from each kit, because Riot doesn’t publish operator stats.</p>
+  <div class="rolesum" id="rsum"></div>
+  <div class="opbar"><div class="tabs" id="rtabs" style="margin:0"></div><input type="search" id="osr" placeholder="Search operators" aria-label="Search operators"><select id="osort" aria-label="Sort operators"><option value="n">Sort by name</option><option value="r">Sort by release order</option><option value="d">Sort by difficulty</option></select></div>
+  <div class="ops" id="opg"></div>
+  <p class="lead" style="margin-top:1.5rem">A new operator has been teased but isn’t playable yet, so it isn’t listed.</p>
+</section>
+
+<section id="econ">
+  <h2>Economy &amp; crosshair</h2>
+  <p class="lead">Two tools worth more than any highlight reel.</p>
+  <div class="lab">
+    <div class="panel">
+      <h3>Next-round credits</h3>
+      <label>Result of this round
+        <select id="res"><option value="win">Won the round</option><option value="l0">Lost (first loss)</option><option value="l1">Lost (2 in a row)</option><option value="l2">Lost (3+ in a row)</option></select></label>
+      <label>Kills this round <output id="kO">1</output><input type="range" id="kills" min="0" max="10" value="1"></label>
+      <label class="chk"><input type="checkbox" id="plant"> Spike was planted (attackers)</label>
+      <label>Credits you hold now <input type="number" id="cur" value="800" min="0" max="9000" step="50"></label>
+      <div class="big"><span id="total">0</span><small>credits (cap 9,000)</small></div>
+      <div class="buy" id="buy"></div>
+    </div>
+    <div class="panel" id="xhair">
+      <h3>Crosshair lab</h3>
+      <div class="stage"><div id="xh"></div></div>
+      <label>Colour <input type="color" id="xc" value="#46ff8c"></label>
+      <label>Line length <output id="lO">6</output><input type="range" id="len" min="0" max="20" value="6"></label>
+      <label>Thickness <output id="tO">2</output><input type="range" id="th" min="1" max="6" value="2"></label>
+      <label>Centre gap <output id="gO">4</output><input type="range" id="gap" min="0" max="16" value="4"></label>
+      <label class="chk"><input type="checkbox" id="dot" checked> Centre dot</label>
+    </div>
+  </div>
+</section>
+
+<section id="ranks">
+  <h2>The ranked ladder</h2>
+  <p class="lead">Tap a tier to see what separates it from the one below.</p>
+  <div class="ranks" id="rk"></div>
+  <div id="rinfo"></div>
+</section>
+
+<footer>Round Zero is an unofficial fan project and is not affiliated with or endorsed by Riot Games. Game names belong to their owners.</footer>
+
+<script>
+/* ---------- spike defuse ---------- */
+(function(){
+  var T=45,D=7,left=T,def=0,holding=false,over=false,last=performance.now();
+  var clock=document.getElementById('clock'),tick=document.getElementById('tick'),df=document.getElementById('defuse'),
+      st=document.getElementById('state'),msg=document.getElementById('msg'),hold=document.getElementById('hold'),sp=document.getElementById('spike');
+  function reset(){left=T;def=0;over=false;sp.classList.remove('boom');st.textContent='spike planted';msg.textContent='Hold for 7 seconds before the 45 run out.';hold.textContent='Hold to defuse'}
+  function loop(n){
+    var dt=(n-last)/1000;last=n;
+    if(!over){
+      left-=dt;
+      if(holding){def+=dt}else if(def>0){def=Math.max(0,def-dt*2)}
+      if(def>=D){over=true;msg.textContent='Defused with '+left.toFixed(1)+'s left. Round won.';st.textContent='defused';hold.textContent='Plant again';setTimeout(function(){if(over)reset()},4000)}
+      else if(left<=0){left=0;over=true;sp.classList.add('boom');st.textContent='detonated';msg.textContent='Too slow. Attackers take the round.';hold.textContent='Try again';setTimeout(function(){if(over)reset()},4000)}
+    }
+    clock.textContent=Math.ceil(left);sp.classList.toggle('urgent',!over&&left<10);
+    tick.style.strokeDashoffset=100-(left/T*100);
+    df.style.strokeDashoffset=100-(Math.min(def,D)/D*100);
+    requestAnimationFrame(loop)
+  }
+  function down(e){e.preventDefault();if(over){reset();return}holding=true}
+  function up(){holding=false}
+  hold.addEventListener('pointerdown',down);window.addEventListener('pointerup',up);hold.addEventListener('pointerleave',up);
+  hold.addEventListener('keydown',function(e){if(e.key===' '||e.key==='Enter'){e.preventDefault();if(over)reset();else holding=true}});
+  hold.addEventListener('keyup',up);
+  requestAnimationFrame(function(n){last=n;loop(n)})
+})();
+
+/* ---------- arsenal ---------- */
+var guns=[
+ ['Classic','Sidearm',0,40,60,95],['Ghost','Sidearm',500,55,70,80],['Sheriff','Sidearm',800,85,35,55],
+ ['Stinger','SMG',1100,40,90,60],['Spectre','SMG',1600,50,85,70],
+ ['Bucky','Shotgun',850,80,30,20],['Judge','Shotgun',1850,85,70,25],
+ ['Bulldog','Rifle',2050,60,75,70],['Guardian','Rifle',2250,85,35,85],['Phantom','Rifle',2900,70,80,80],['Vandal','Rifle',2900,85,70,85],
+ ['Marshal','Sniper',950,80,25,90],['Outlaw','Sniper',2400,90,15,85],['Operator','Sniper',4700,100,10,95],
+ ['Ares','Heavy',1600,60,90,65],['Odin','Heavy',3200,65,100,55]];
+var cls=['All'].concat(guns.map(function(g){return g[1]}).filter(function(v,i,a){return a.indexOf(v)===i}));
+var cur='All',tabs=document.getElementById('tabs'),box=document.getElementById('guns');
+function bar(l,v){return '<div class="bar">'+l+'<i><b style="width:'+v+'%"></b></i></div>'}
+function draw(){
+  tabs.innerHTML='';
+  cls.forEach(function(c){var b=document.createElement('button');b.textContent=c;b.setAttribute('aria-pressed',c===cur);b.onclick=function(){cur=c;draw()};tabs.appendChild(b)});
+  box.innerHTML=guns.filter(function(g){return cur==='All'||g[1]===cur}).map(function(g){
+    return '<article class="gun"><h3>'+g[0]+'<span>'+g[2].toLocaleString('en-US')+' cr</span></h3><small>'+g[1]+'</small>'+bar('Punch',g[3])+bar('Fire rate',g[4])+bar('Accuracy',g[5])+'</article>'}).join('')
+}
+draw();
+
+/* ---------- economy ---------- */
+var $=function(i){return document.getElementById(i)};
+function econ(){
+  var r=$('res').value,k=+$('kills').value,p=$('plant').checked,c=+$('cur').value||0;
+  var base={win:3000,l0:1900,l1:2400,l2:2900}[r];
+  var tot=Math.min(9000,c+base+k*200+(p&&r!=='win'?300:p?300:0));
+  $('kO').textContent=k;$('total').textContent=tot.toLocaleString('en-US');
+  var t=tot>=4700?'Full buy plus an Operator is on the table.':tot>=3900?'Full buy: rifle, heavy shield and abilities.':tot>=2900?'Rifle with light armor works. Save abilities if you can.':tot>=1600?'Half buy. An SMG and armor keeps you in the fight.':'Eco round. Save, or play for a pistol pick.';
+  $('buy').textContent=t
+}
+['res','kills','plant','cur'].forEach(function(i){$(i).addEventListener('input',econ)});econ();
+
+/* ---------- crosshair ---------- */
+function xh(){
+  var c=$('xc').value,l=+$('len').value,t=+$('th').value,g=+$('gap').value,d=$('dot').checked;
+  $('lO').textContent=l;$('tO').textContent=t;$('gO').textContent=g;
+  var h=$('xh');h.style.setProperty('--c',c);
+  var o=Math.floor(t/2),s='';
+  if(l>0){
+    s+='<div style="width:'+l+'px;height:'+t+'px;left:'+(g)+'px;top:'+(-o)+'px"></div>';
+    s+='<div style="width:'+l+'px;height:'+t+'px;left:'+(-g-l)+'px;top:'+(-o)+'px"></div>';
+    s+='<div style="height:'+l+'px;width:'+t+'px;top:'+(g)+'px;left:'+(-o)+'px"></div>';
+    s+='<div style="height:'+l+'px;width:'+t+'px;top:'+(-g-l)+'px;left:'+(-o)+'px"></div>'
+  }
+  if(d)s+='<div style="width:'+t+'px;height:'+t+'px;left:'+(-o)+'px;top:'+(-o)+'px"></div>';
+  h.innerHTML=s
+}
+['xc','len','th','gap','dot'].forEach(function(i){$(i).addEventListener('input',xh)});xh();
+
+/* ---------- ranks ---------- */
+var tiers=[['Iron','Learning the basics: movement, where to stand, how to read the minimap. Wins come from simply surviving longer than the other team.'],
+['Bronze','Aim is improving but positioning is loose. Learn to stop moving when you shoot and to clear one angle at a time.'],
+['Silver','Crosshair placement starts to matter. The step up comes from using utility with intent instead of firing it off on cooldown.'],
+['Gold','Teams begin to trade kills and call rotations. Economy discipline separates the climbers from the plateaued.'],
+['Platinum','Players punish gaps in your setup. Expect fast mid-round adaptations and real default strategies.'],
+['Diamond','Mechanics are solid across the lobby. Wins come from tempo, timing and refusing to give free information.'],
+['Ascendant','Layered executes, fake sites and tight post-plant setups. Mistakes get punished within seconds.'],
+['Immortal','Near-professional discipline: set plays, deep map knowledge and precise economy control.'],
+['Radiant','The top of the ladder. A small group of the most consistent players in each region.']];
+var rk=$('rk'),ri=$('rinfo');
+tiers.forEach(function(t,i){var b=document.createElement('button');b.textContent=t[0];b.dataset.s=t[0].slice(0,3);b.style.height=(18+i*10)+'%';b.setAttribute('aria-pressed','false');
+  b.onclick=function(){[].forEach.call(rk.children,function(x){x.setAttribute('aria-pressed','false')});b.setAttribute('aria-pressed','true');ri.innerHTML='<h3 style="font-size:2rem">'+t[0]+'</h3><p>'+t[1]+'</p>'};rk.appendChild(b)});
+rk.children[3].click();
+/* ---------- colour themes ---------- */
+var themes=[['Toxin','#7dff3a'],['Signal','#ff4655'],['Mint','#2fe0b5'],['Gold','#ffd23f'],['Cobalt','#4fa8ff'],['Violet','#b388ff']];
+var sw=$('sw');
+function setTheme(c){document.documentElement.style.setProperty('--red',c);[].forEach.call(sw.children,function(b){b.setAttribute('aria-pressed',b.dataset.c===c)})}
+themes.forEach(function(t){var b=document.createElement('button');b.style.setProperty('--c',t[1]);b.dataset.c=t[1];b.title=t[0];b.setAttribute('aria-label',t[0]+' colour theme');b.setAttribute('aria-pressed',t[1]==='#7dff3a');b.onclick=function(){setTheme(t[1])};sw.appendChild(b)});
+
+/* ---------- ability effects ---------- */
+var fxd=[['Smoke','Blocks sight lines at a choke point','#2fe0b5','smoke'],['Flash','Blinds anyone looking your way','#ffd23f','flash'],['Dash','Burst of speed across the lane','#ff4655','dash'],['Wall','Splits a site in two for a few seconds','#4fa8ff','wall'],['Pulse','Reveals enemies in a wide radius','#b388ff','pulse']];
+var fxl=$('fxl'),fxs=$('fxs'),fxCur=fxd[0];
+function mk(cls,css,col){var d=document.createElement('div');d.className='e '+cls;d.style.cssText=css;d.style.setProperty('--c',col);fxs.appendChild(d);setTimeout(function(){d.remove()},3600)}
+function fire(f,x,y){
+  var h=fxs.querySelector('.fxhint');if(h)h.remove();
+  var c=f[2],t=f[3],i;
+  if(t==='smoke')for(i=0;i<7;i++)mk('smoke','left:'+(x+(Math.random()*16-8))+'%;top:'+(y+(Math.random()*16-8))+'%;animation-delay:'+(i*.08)+'s',c);
+  if(t==='flash')mk('flash','',c);
+  if(t==='dash')for(i=0;i<6;i++)mk('dash','top:'+(y-18+i*7)+'%;animation-delay:'+(i*.05)+'s',c);
+  if(t==='wall')for(i=0;i<10;i++)mk('wall','left:'+(Math.max(0,Math.min(88,x-35))+i*7)+'%;animation-delay:'+(i*.04)+'s',c);
+  if(t==='pulse')for(i=0;i<3;i++)mk('pulse','left:'+x+'%;top:'+y+'%;animation-delay:'+(i*.35)+'s',c)
+}
+fxd.forEach(function(f,i){var b=document.createElement('button');b.style.setProperty('--c',f[2]);b.innerHTML=f[0]+'<small>'+f[1]+'</small>';
+  b.onclick=function(){fxCur=f;setTheme(f[2]);fire(f,50,50)};fxl.appendChild(b)});
+fxs.addEventListener('pointerdown',function(e){var r=fxs.getBoundingClientRect();fire(fxCur,(e.clientX-r.left)/r.width*100,(e.clientY-r.top)/r.height*100)});
+
+/* ---------- hero embers ---------- */
+(function(){
+  if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+  var c=$('embers'),x=c.getContext('2d'),P=[],W,H,i;
+  function rs(){W=c.width=c.offsetWidth;H=c.height=c.offsetHeight}rs();addEventListener('resize',rs);
+  for(i=0;i<60;i++)P.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*2+.8,v:Math.random()*.6+.2,a:Math.random()});
+  (function f(){
+    x.clearRect(0,0,W,H);
+    x.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--red').trim()||'#ff4655';
+    P.forEach(function(p){p.y-=p.v;p.x+=Math.sin(p.y/40)*.3;if(p.y<-5){p.y=H+5;p.x=Math.random()*W}x.globalAlpha=p.a*.7;x.fillRect(p.x,p.y,p.r*1.6,p.r*1.6)});
+    requestAnimationFrame(f)
+  })()
+})();
+/* ---------- 3D spike ---------- */
+(function(){
+  var spin=$('spin'),tl=$('tilt'),sc=$('scene'),pr=$('prism'),btn=$('spinBtn'),spd=$('spd'),i;
+  var ry=30,rx=-14,auto=!matchMedia('(prefers-reduced-motion:reduce)').matches,drag=false,lx=0,ly=0,vis=true;
+  for(i=0;i<6;i++){var f=document.createElement('div');f.className='face';f.style.transform='rotateY('+(i*60)+'deg) translateZ(78px)';pr.appendChild(f)}
+  for(i=0;i<14;i++){var a=Math.random()*6.283,r=170+Math.random()*130,s=document.createElement('div');s.className='shard';
+    s.style.transform='translate3d('+(Math.cos(a)*r)+'px,'+(Math.random()*340-170)+'px,'+(Math.sin(a)*r)+'px) rotate('+(Math.random()*90)+'deg)';
+    s.style.animationDelay=(-Math.random()*3)+'s';spin.appendChild(s)}
+  if(!auto)btn.textContent='Resume spin';
+  btn.onclick=function(){auto=!auto;btn.textContent=auto?'Pause spin':'Resume spin'};
+  sc.addEventListener('pointerdown',function(e){drag=true;lx=e.clientX;ly=e.clientY;sc.setPointerCapture(e.pointerId)});
+  sc.addEventListener('pointermove',function(e){if(!drag)return;ry+=(e.clientX-lx)*.6;rx=Math.max(-60,Math.min(35,rx-(e.clientY-ly)*.4));lx=e.clientX;ly=e.clientY});
+  sc.addEventListener('pointerup',function(){drag=false});
+  sc.addEventListener('pointercancel',function(){drag=false});
+  if('IntersectionObserver' in window)new IntersectionObserver(function(en){vis=en[0].isIntersecting}).observe(sc);
+  (function loop(){
+    if(vis){if(auto&&!drag)ry+=+spd.value;spin.style.transform='rotateY('+ry+'deg)';tl.style.transform='rotateX('+rx+'deg)'}
+    requestAnimationFrame(loop)
+  })()
+})();
+
+/* ---------- 3D card tilt ---------- */
+(function(){
+  var cur=null;
+  function reset(){if(cur){cur.style.transform='';cur.classList.remove('tl');cur=null}}
+  document.addEventListener('pointermove',function(e){
+    if(e.pointerType!=='mouse'||matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+    var t=e.target.closest&&e.target.closest('.gun,.loop div,.spike');
+    if(t!==cur)reset();
+    if(!t)return;
+    cur=t;t.classList.add('tl');
+    var r=t.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
+    t.style.transform='perspective(800px) rotateX('+(-y*14)+'deg) rotateY('+(x*14)+'deg) translateZ(14px)'
+  });
+  document.addEventListener('pointerleave',reset)
+})();
+/* ---------- toxin theme, background, loader ---------- */
+setTheme('#7dff3a');
+(function(){
+  var reduce=matchMedia('(prefers-reduced-motion:reduce)').matches,bg=$('bg'),c=$('spores'),x=c.getContext('2d'),P=[],W,H,i,mx=50,my=30,q=false;
+  function rs(){W=c.width=innerWidth;H=c.height=innerHeight}rs();addEventListener('resize',rs);
+  addEventListener('pointermove',function(e){mx=e.clientX;my=e.clientY;if(!q){q=true;requestAnimationFrame(function(){bg.style.setProperty('--mx',mx+'px');bg.style.setProperty('--my',my+'px');q=false})}});
+  if(reduce)return;
+  for(i=0;i<48;i++)P.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*2.2+.8,v:Math.random()*.45+.12,a:Math.random()*.6+.2,p:Math.random()*6});
+  (function f(){
+    if(!document.hidden){
+      x.clearRect(0,0,W,H);
+      x.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--red').trim()||'#7dff3a';
+      P.forEach(function(s){s.y-=s.v;s.p+=.012;s.x+=Math.sin(s.p)*.35;if(s.y<-6){s.y=H+6;s.x=Math.random()*W}
+        x.globalAlpha=s.a;x.beginPath();x.arc(s.x,s.y,s.r,0,6.283);x.fill()})
+    }
+    requestAnimationFrame(f)
+  })()
+})();
+(function(){
+  var L=$('load'),lp=$('lp'),lt=$('lt'),h1=document.querySelector('.hero h1'),reduce=matchMedia('(prefers-reduced-motion:reduce)').matches,
+      dur=reduce?300:2800,st=performance.now(),loaded=document.readyState==='complete',done=false;
+  var msgs=['Scanning the map','Locking onto signals','Marking the sites','Round starting'];
+  document.body.style.overflow='hidden';
+  addEventListener('load',function(){loaded=true});
+  function finish(){
+    if(done)return;done=true;
+    L.classList.add('out');document.body.style.overflow='';
+    if(h1){h1.classList.remove('glitch');void h1.offsetWidth;h1.classList.add('glitch')}
+    setTimeout(function(){L.remove()},1500)
+  }
+  function step(n){
+    var t=Math.min(1,(n-st)/dur),p=Math.round((1-Math.pow(1-t,2.2))*100);
+    if(!loaded)p=Math.min(p,92);
+    L.style.setProperty('--p',p);lp.textContent=p+'%';lt.textContent=msgs[Math.min(3,Math.floor(p/26))];
+    if(p>=100&&loaded)setTimeout(finish,350);else requestAnimationFrame(step)
+  }
+  requestAnimationFrame(step);
+  setTimeout(finish,7000)
+})();
+/* ---------- operators ---------- */
+(function(){
+  var RN={D:'Duelist',C:'Controller',I:'Initiator',S:'Sentinel'},RC={D:'#ff5a5a',C:'#9b8cff',I:'#ffb23d',S:'#3dd6c8'},DF={E:'Easy',M:'Medium',H:'Hard'},DV={E:1,M:2,H:3},SL=['Entry','Info','Control','Survive'],oc='All';
+  var OPS=`Astra|C|H|Ghana|16|Gravity Well,Nova Pulse,Nebula/Dissipate,Cosmic Divide|2253
+Breach|I|E|Sweden|13|Fault Line,Aftershock,Flashpoint,Rolling Thunder|4231
+Brimstone|C|E|United States|1|Sky Smoke,Stim Beacon,Incendiary,Orbital Strike|3252
+Chamber|S|H|France|18|Rendezvous,Trademark,Headhunter,Tour de Force|3224
+Clove|C|E|Scotland|25|Ruse,Meddle,Pick-Me-Up,Not Dead Yet|3244
+Cypher|S|M|Morocco|5|Spycam,Trapwire,Cyber Cage,Neural Theft|1533
+Deadlock|S|M|Norway|23|Barrier Mesh,GravNet,Sonic Sensor,Annihilation|1343
+Fade|I|E|Türkiye|20|Haunt,Prowler,Seize,Nightfall|3532
+Gekko|I|E|United States|22|Dizzy,Mosh Pit,Wingman,Thrash|4333
+Harbor|C|E|India|21|Cove,High Tide,Storm Surge,Reckoning|3152
+Iso|D|H|China|24|Double Tap,Undercut,Contingency,Kill Contract|5124
+Jett|D|M|South Korea|10|Tailwind,Cloudburst,Updraft,Blade Storm|5123
+KAY/O|I|H|Alternate timeline|17|ZERO/POINT,FRAG/MENT,FLASH/DRIVE,NULL/CMD|4324
+Killjoy|S|E|Germany|4|Turret,Nanoswarm,Alarmbot,Lockdown|2343
+Miks|C|M|Croatia|30|Waveform,M-Pulse,Harmonize,Bassquake|3243
+Neon|D|M|Philippines|19|High Gear,Fast Lane,Relay Bolt,Overdrive|5133
+Omen|C|M|Unknown|3|Dark Cover,Shrouded Step,Paranoia,From the Shadows|3353
+Phoenix|D|M|England|9|Hot Hands,Blaze,Curveball,Run It Back|4125
+Raze|D|H|Brazil|12|Paint Shells,Boom Bot,Blast Pack,Showstopper|5222
+Reyna|D|M|Mexico|11|Devour,Dismiss,Leer,Empress|5115
+Sage|S|E|China|7|Healing Orb,Barrier Orb,Slow Orb,Resurrection|1145
+Skye|I|M|Australia|14|Guiding Light,Regrowth,Trailblazer,Seekers|3425
+Sova|I|M|Russia|6|Recon Bolt,Owl Drone,Shock Bolt,Hunter’s Fury|2521
+Tejo|I|M|Colombia|27|Guided Salvo,Stealth Drone,Special Delivery,Armageddon|3432
+Veto|S|H|Senegal|29|Interceptor,Crosscut,Chokehold,Evolution|1235
+Viper|C|E|United States|2|Toxic Screen,Snake Bite,Poison Cloud,Viper’s Pit|2153
+Vyse|S|H|Unknown|26|Arc Rose,Razorvine,Shear,Steel Garden|2243
+Waylay|D|M|Thailand|28|Refract,Saturate,Lightspeed,Convergent Paths|5134
+Yoru|D|H|Japan|15|Gatecrash,Fakeout,Blindside,Dimensional Drift|4323`.split('\n').map(function(l){var p=l.split('|');return{n:p[0],r:p[1],d:p[2],o:p[3],k:+p[4],a:p[5].split(','),s:p[6].split('').map(Number)}});
+  function dots(d){var s='',i;for(i=0;i<3;i++)s+='<i style="opacity:'+(i<DV[d]?1:.2)+'"></i>';return s}
+  function card(o){
+    return '<article class="op" tabindex="0" role="button" aria-expanded="false" style="--rc:'+RC[o.r]+'"><div style="display:flex;gap:.8rem;align-items:center"><div class="hexb">'+o.n[0]+'</div><div><h3>'+o.n+'</h3><div class="meta">'+RN[o.r]+', '+o.o+', no. '+o.k+'</div></div></div>'
+    +'<div class="meta" style="margin:.7rem 0 .2rem">Difficulty <span class="dots">'+dots(o.d)+'</span> '+DF[o.d]+'</div>'
+    +o.s.map(function(v,i){return bar(SL[i],v*20)}).join('')
+    +'<ul class="ab">'+o.a.map(function(a,i){return '<li>'+a+(i===3?' <small>(ultimate)</small>':'')+'</li>'}).join('')+'</ul></article>'
+  }
+  function ro(){
+    var q=$('osr').value.toLowerCase(),so=$('osort').value;
+    var L=OPS.filter(function(o){return (oc==='All'||RN[o.r]===oc)&&o.n.toLowerCase().indexOf(q)>-1});
+    L.sort(function(a,b){return so==='r'?a.k-b.k:so==='d'?DV[a.d]-DV[b.d]||a.n.localeCompare(b.n):a.n.localeCompare(b.n)});
+    $('opg').innerHTML=L.length?L.map(card).join(''):'<p class="lead">No operators match that search.</p>'
+  }
+  var tabs=$('rtabs');
+  ['All','Duelist','Controller','Initiator','Sentinel'].forEach(function(r){var b=document.createElement('button');b.textContent=r;b.setAttribute('aria-pressed',r==='All');
+    b.onclick=function(){oc=r;[].forEach.call(tabs.children,function(x){x.setAttribute('aria-pressed',x===b)});ro()};tabs.appendChild(b)});
+  $('rsum').innerHTML=Object.keys(RN).map(function(k){
+    var m=OPS.filter(function(o){return o.r===k}),h='<div class="rs" style="--rc:'+RC[k]+'"><h3>'+RN[k]+'</h3><small>'+m.length+' operators, average ratings</small>';
+    SL.forEach(function(l,i){var a=m.reduce(function(t,o){return t+o.s[i]},0)/m.length;h+=bar(l,a*20)});
+    return h+'</div>'}).join('');
+  $('osr').addEventListener('input',ro);$('osort').addEventListener('change',ro);
+  function tg(e){var c=e.target.closest&&e.target.closest('.op');if(c)c.setAttribute('aria-expanded',c.getAttribute('aria-expanded')!=='true')}
+  $('opg').addEventListener('click',tg);
+  $('opg').addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();tg(e)}});
+  ro()
+})();
+
+/* ---------- viper ---------- */
+(function(){
+  var c=$('viper'),x=c.getContext('2d'),W,H,R,N=110,G=4,hist=[],px,py,ang=-.4,t=0,fr=0,col='#7dff3a',rg=[125,255,58],reduce=matchMedia('(prefers-reduced-motion:reduce)').matches,i;
+  function rs(){W=c.width=innerWidth;H=c.height=innerHeight;R=Math.max(9,Math.min(17,W/45))}
+  rs();addEventListener('resize',function(){rs();if(reduce)draw()});
+  px=W*.2;py=H*.65;
+  function rgbOf(h){h=h.replace('#','');if(h.length===3)h=h.replace(/./g,'$&$&');var n=parseInt(h,16);return [n>>16,(n>>8)&255,n&255]}
+  function step(){
+    t+=.03;
+    var m=110;
+    if(px<m||px>W-m||py<m||py>H-m){var da=Math.atan2(H/2-py,W/2-px)-ang;da=Math.atan2(Math.sin(da),Math.cos(da));ang+=da*.05}
+    ang+=Math.sin(t*1.7)*.045+Math.sin(t*.37)*.012;
+    px+=Math.cos(ang)*2.4;py+=Math.sin(ang)*2.4;
+    hist.unshift([px,py,ang]);if(hist.length>N*G+2)hist.pop()
+  }
+  function draw(){
+    x.clearRect(0,0,W,H);
+    if(fr++%30===0){col=getComputedStyle(document.documentElement).getPropertyValue('--red').trim()||col;try{rg=rgbOf(col)}catch(e){}}
+    var base='rgb('+(rg[0]*.2|0)+','+(rg[1]*.2|0)+','+(rg[2]*.2|0)+')',mid='rgb('+(rg[0]*.5|0)+','+(rg[1]*.5|0)+','+(rg[2]*.5|0)+')',k,h,rad,tt;
+    for(k=N-1;k>=0;k--){
+      h=hist[k*G];if(!h)continue;
+      tt=k/N;rad=R*(tt<.1?.62+tt*3.6:1-(tt-.1)*.95);
+      x.fillStyle=mid;x.beginPath();x.arc(h[0],h[1],rad,0,6.283);x.fill();
+      x.fillStyle=base;x.beginPath();x.arc(h[0],h[1],rad*.82,0,6.283);x.fill();
+      if(k%2===0){x.save();x.translate(h[0],h[1]);x.rotate(h[2]);x.fillStyle='rgba(0,0,0,.55)';x.beginPath();x.moveTo(rad*.95,0);x.lineTo(0,rad*.55);x.lineTo(-rad*.95,0);x.lineTo(0,-rad*.55);x.closePath();x.fill();x.restore()}
+      else{x.fillStyle=col;x.globalAlpha=.55;x.beginPath();x.arc(h[0]-Math.sin(h[2])*rad*.78,h[1]+Math.cos(h[2])*rad*.78,rad*.15,0,6.283);x.arc(h[0]+Math.sin(h[2])*rad*.78,h[1]-Math.cos(h[2])*rad*.78,rad*.15,0,6.283);x.fill();x.globalAlpha=1}
+    }
+    h=hist[0];if(!h)return;
+    x.save();x.translate(h[0],h[1]);x.rotate(h[2]);
+    x.fillStyle=mid;x.beginPath();x.moveTo(R*1.9,0);x.quadraticCurveTo(R*.9,-R*1.2,-R*.5,-R*.95);x.lineTo(-R*.5,R*.95);x.quadraticCurveTo(R*.9,R*1.2,R*1.9,0);x.fill();
+    x.fillStyle=base;x.beginPath();x.moveTo(R*1.5,0);x.lineTo(-R*.3,-R*.6);x.lineTo(-R*.3,R*.6);x.closePath();x.fill();
+    x.fillStyle=col;x.shadowColor=col;x.shadowBlur=12;
+    x.beginPath();x.ellipse(R*.75,-R*.52,R*.22,R*.1,.4,0,6.283);x.fill();
+    x.beginPath();x.ellipse(R*.75,R*.52,R*.22,R*.1,-.4,0,6.283);x.fill();x.shadowBlur=0;
+    var f=Math.pow(Math.max(0,Math.sin(t*2.2)),10)*R*2.4;
+    if(f>1){x.strokeStyle=col;x.lineWidth=2;x.beginPath();x.moveTo(R*1.9,0);x.lineTo(R*1.9+f,0);x.moveTo(R*1.9+f,0);x.lineTo(R*1.9+f*1.3,-f*.3);x.moveTo(R*1.9+f,0);x.lineTo(R*1.9+f*1.3,f*.3);x.stroke()}
+    x.restore()
+  }
+  for(i=0;i<N*G+2;i++)step();
+  draw();
+  if(reduce)return;
+  (function loop(){if(!document.hidden){step();draw()}requestAnimationFrame(loop)})()
+})();
+</script>
+</body>
+</html>
